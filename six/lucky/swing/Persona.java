@@ -3,13 +3,13 @@ package six.lucky.swing;
 import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import six.lucky.graph.GraphTools;
 
 import java.util.ArrayList;
-import java.util.Objects;
-
 public class Persona extends Director{
     private double x = 0;
     private double y = Window.menuBarHeight;
+    private boolean visible = false;
     private int frequency = 0;
     private double angle = 0;
     private int personaImageQuantity = 0;
@@ -21,7 +21,7 @@ public class Persona extends Director{
     private int last = personaImageIndex;
     public Persona(String personaImagePath) {
         {
-            personaImage.add(new Image(Objects.requireNonNull(getClass().getClassLoader().getResource(personaImagePath)).toExternalForm()));
+            personaImage.add(GraphTools.getImageByPath(personaImagePath));
             personaImageView = new ImageView(personaImage.get(0));
             personaImageQuantity++;
         }
@@ -29,7 +29,7 @@ public class Persona extends Director{
     }
     public Persona(String personaImagePath,double x,double y) {
         {
-            personaImage.add(new Image(Objects.requireNonNull(getClass().getClassLoader().getResource(personaImagePath)).toExternalForm()));
+            personaImage.add(GraphTools.getImageByPath(personaImagePath));
             personaImageView = new ImageView(personaImage.get(0));
             personaImageQuantity++;
         }
@@ -38,7 +38,7 @@ public class Persona extends Director{
         refreshPersona();
     }
     public void addImage(String imagePath){
-        personaImage.add(new Image(Objects.requireNonNull(getClass().getClassLoader().getResource(imagePath)).toExternalForm()));
+        personaImage.add(GraphTools.getImageByPath(imagePath));
         personaImageQuantity++;
     }
     public void selectImage(int index){
@@ -53,11 +53,10 @@ public class Persona extends Director{
     public void refreshPersona() {
         if(!Window.isStageMoving) {
             Platform.runLater(() -> {
-                x = Math.floor(x);
-                y = Math.floor(y);
                 personaImageView.setX(x);
                 personaImageView.setY(y);
                 personaImageView.setRotate(angle);
+                personaImageView.setVisible(visible);
                 if (personaImageIndex != last) {
                     personaImageView.setImage(personaImage.get(personaImageIndex >= 0 && personaImageIndex <= personaImage.size() - 1 ? personaImageIndex : 0));
                 }
@@ -161,5 +160,16 @@ public class Persona extends Director{
         if(isListenForMath) {printMathStatus(stride,angle);}
         x+=angle>=0&&angle<=360?Math.sin(Math.toRadians(angle))*stride:0;
         y+=angle>=0&&angle<=360?Math.cos(Math.toRadians(angle))*stride*-1:0;
+    }
+    public void setVisible(boolean v){
+        visible=v;
+        refreshPersona();
+    }
+    public void show(){
+        visible=true;
+        refreshPersona();
+    }
+    public boolean getVisible(){
+        return visible;
     }
 }
