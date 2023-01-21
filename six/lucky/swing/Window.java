@@ -11,8 +11,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import six.lucky.graph.Graph3d;
-import six.lucky.graph.Rect3D;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -46,7 +44,7 @@ public class Window {
     private double mouseDraggedX;
     private double mouseDraggedY;
     private final ArrayList<Persona> allPersona = new ArrayList<>();
-    static final int menuBarHeight = 30;
+    public static final int menuBarHeight = 30;
     static final Color menuColor = Color.rgb(185,185,185);
     private String title;
     public Window(){
@@ -240,7 +238,7 @@ public class Window {
     public Stage getPrimaryStage(){
         return primaryStage;
     }
-    Pane getLayout(){
+    public Pane getLayout(){
         return layout;
     }
     public ObservableList<Node> getLayoutNode(){
@@ -257,16 +255,6 @@ public class Window {
     }
     public void cleanArtboard(){
         mg.clearRect(0,0,primaryStage.getWidth(),primaryStage.getHeight()-menuBarHeight);
-    }
-    public void addGraph(Rect3D graph3d){
-        graph3d.
-    }
-    public void startCanvasThread(){
-        new Thread(()->{
-            while (isRunning){
-                
-            }
-        }).start();
     }
     void PersonaOnKeyPressed(KeyEvent event){
         new Thread(() -> {

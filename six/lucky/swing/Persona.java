@@ -3,7 +3,7 @@ package six.lucky.swing;
 import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import six.lucky.graph.GraphTools;
+import six.lucky.graph.Graph;
 
 import java.util.ArrayList;
 public class Persona extends Director{
@@ -21,7 +21,7 @@ public class Persona extends Director{
     private int last = personaImageIndex;
     public Persona(String personaImagePath) {
         {
-            personaImage.add(GraphTools.getImageByPath(personaImagePath));
+            personaImage.add(Graph.getImageByPath(personaImagePath));
             personaImageView = new ImageView(personaImage.get(0));
             personaImageQuantity++;
         }
@@ -29,7 +29,7 @@ public class Persona extends Director{
     }
     public Persona(String personaImagePath,double x,double y) {
         {
-            personaImage.add(GraphTools.getImageByPath(personaImagePath));
+            personaImage.add(Graph.getImageByPath(personaImagePath));
             personaImageView = new ImageView(personaImage.get(0));
             personaImageQuantity++;
         }
@@ -38,7 +38,7 @@ public class Persona extends Director{
         refreshPersona();
     }
     public void addImage(String imagePath){
-        personaImage.add(GraphTools.getImageByPath(imagePath));
+        personaImage.add(Graph.getImageByPath(imagePath));
         personaImageQuantity++;
     }
     public void selectImage(int index){

@@ -3,38 +3,29 @@ package six.lucky.graph;
 import javafx.scene.canvas.GraphicsContext;
 import six.lucky.swing.Window;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 public class Graph3d {
-    public static void stroke3dRect(Point xyz, double w, double h, double d, double horizon, double s, Window window){
-        try {
-            GraphicsContext g = window.getMainCanvas();
-            double EPX = window.getPrimaryStageWidth() / 2;
-            double EPY = window.getPrimaryStageHeight() / 2;
-            xyz.setX(xyz.getX() - EPX);
-            xyz.setY(xyz.getY() - EPY);
-            Point point1 = new Point(horizon * xyz.getX() / xyz.getZ() + EPX, horizon * xyz.getY() / xyz.getZ() + EPY);
-            Point point2 = new Point(horizon * xyz.getX() / xyz.getZ() + EPX, horizon * (xyz.getY() + h) / xyz.getZ() + EPY);
-            Point point3 = new Point(horizon * (xyz.getX() + w) / xyz.getZ() + EPX, horizon * (xyz.getY() + h) / xyz.getZ() + EPY);
-            Point point4 = new Point(horizon * (xyz.getX() + w) / xyz.getZ() + EPX, horizon * xyz.getY() / xyz.getZ() + EPY);
-            Point point5 = new Point(horizon * xyz.getX() / (xyz.getZ() + d) + EPX, horizon * xyz.getY() / (xyz.getZ() + d) + EPY);
-            Point point6 = new Point(horizon * xyz.getX() / (xyz.getZ() + d) + EPX, horizon * (xyz.getY() + h) / (xyz.getZ() + d) + EPY);
-            Point point7 = new Point(horizon * (xyz.getX() + w) / (xyz.getZ() + d) + EPX, horizon * (xyz.getY() + h) / (xyz.getZ() + d) + EPY);
-            Point point8 = new Point(horizon * (xyz.getX() + w) / (xyz.getZ() + d) + EPX, horizon * xyz.getY() / (xyz.getZ() + d) + EPY);
-            g.strokePolygon(
-                    new double[]{point1.getX(), point2.getX(), point3.getX(), point4.getX()},
-                    new double[]{point1.getY(), point2.getY(), point3.getY(), point4.getY()},
-                    4
-            );
-            g.strokePolygon(
-                    new double[]{point5.getX(), point6.getX(), point7.getX(), point8.getX()},
-                    new double[]{point5.getY(), point6.getY(), point7.getY(), point8.getY()},
-                    4
-            );
-            g.strokeLine(point1.getX(), point1.getY(), point5.getX(), point5.getY());
-            g.strokeLine(point2.getX(), point2.getY(), point6.getX(), point6.getY());
-            g.strokeLine(point3.getX(), point3.getY(), point7.getX(), point7.getY());
-            g.strokeLine(point4.getX(), point4.getY(), point8.getX(), point8.getY());
-        }catch (Throwable t) {
-            System.out.println("error");
+    private final Lock rect3DLock = new ReentrantLock();
+    public static void stroke3dRect(Rect3D rect3D,Window window) {
+        GraphicsContext g = window.getMainCanvas();
+        Matrix4x4 rotate = Matrix4x4.multiply(Graph.rotate(rect3D.modelAbsoluteAngle.getX(), true, false, false), Graph.rotate(rect3D.modelAbsoluteAngle.getY(), false, true, false));
+        window.cleanArtboard();
+        for (int i = 0; i < 6; i++) {
+            Vector3D[] ceil = new Vector3D[4];
+            for (int j = 0; j < 4; j++) {
+                Vector3D floor = rect3D.vertexArr[rect3D.elementArr[i][j]];
+                floor = Matrix4x4.multiply(rotate, floor);
+                floor = rect3D.toAbsolute(floor);
+                floor = rect3D.perspective(floor, -150, -100);
+                floor = rect3D.toScreen(floor, window);
+                ceil[j] = floor;
+            }
+            g.strokeLine(ceil[0].getX(), ceil[0].getY(), ceil[1].getX(), ceil[1].getY());
+            g.strokeLine(ceil[1].getX(), ceil[1].getY(), ceil[2].getX(), ceil[2].getY());
+            g.strokeLine(ceil[2].getX(), ceil[2].getY(), ceil[3].getX(), ceil[3].getY());
+            g.strokeLine(ceil[3].getX(), ceil[3].getY(), ceil[0].getX(), ceil[0].getY());
         }
     }
 }
