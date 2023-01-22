@@ -1,17 +1,13 @@
 package six.lucky.swing;
-import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -26,43 +22,29 @@ public class Window {
     static Date date = new Date();
     private boolean isListenForData = false;
     private final Lock threadLock = new ReentrantLock();
-    private final Lock dragLock = new ReentrantLock();
-    private boolean isbtcing = false;
-    private boolean isCing = false;
-    static boolean isStageMoving = false;
-    private final int menuAmount = 10;
-    private final Canvas btc = new Canvas();
-    private final Canvas menuCanvas = new Canvas();
     private final Canvas mainCanvas = new Canvas();
-    private final GraphicsContext g = menuCanvas.getGraphicsContext2D();
     private final GraphicsContext mg = mainCanvas.getGraphicsContext2D();
-    private final GraphicsContext btg = btc.getGraphicsContext2D();
     private final Pane layout =new Pane();
     private final ObservableList<Node> layoutNode = layout.getChildren();
     private final Scene sc=new Scene(layout);
     private final Stage primaryStage = new Stage();
-    private double mouseDraggedX;
-    private double mouseDraggedY;
     private final ArrayList<Persona> allPersona = new ArrayList<>();
-    public static final int menuBarHeight = 30;
-    static final Color menuColor = Color.rgb(185,185,185);
-    private String title;
     public Window(){
-        primaryStage.setHeight(500);
+        primaryStage.setHeight(500+getMenuHeight());
         primaryStage.setWidth(500);
-        this.title = "MyLGPUnitAPP";
+        primaryStage.setTitle("Lucky");
         initStage();
     }
     public Window(String title){
-        primaryStage.setHeight(500);
+        primaryStage.setHeight(500+getMenuHeight());
         primaryStage.setWidth(500);
-        this.title = title;
+        primaryStage.setTitle(title);
         initStage();
     }
     public Window(String title, double w, double h){
-        primaryStage.setHeight(h);
+        primaryStage.setHeight(h+getMenuHeight());
         primaryStage.setWidth(w);
-        this.title = title;
+        primaryStage.setTitle(title);
         initStage();
     }
     private void initStage(){
@@ -75,165 +57,58 @@ public class Window {
         isRunning = true;
         {
             primaryStage.setResizable(false);
-            primaryStage.initStyle(StageStyle.TRANSPARENT);
         }
         {
-            menuCanvas.setWidth(primaryStage.getWidth());
-            menuCanvas.setHeight(menuBarHeight);
-            mainCanvas.setLayoutY(menuBarHeight);
-            mainCanvas.setWidth(primaryStage.getWidth());
-            mainCanvas.setHeight(primaryStage.getHeight()-menuBarHeight);
+            mainCanvas.setWidth(getWidth());
+            mainCanvas.setHeight(getHeight());
         }
         {
             layout.setOnKeyPressed(this::PersonaOnKeyPressed);
             layout.setOnKeyReleased(this::PersonaOnKeyReleased);
-            sc.setOnMouseDragged(this::mouseDraggedEvent);
-            sc.setOnMousePressed(this::mousePressedEvent);
-            sc.setOnMouseReleased(event -> isStageMoving=false);
         }
         {
-            btc.setWidth(menuBarHeight);
-            btc.setHeight(menuBarHeight);
-            btc.setLayoutX(primaryStage.getWidth()-btc.getWidth());
-            btg.strokeLine(menuAmount,menuAmount,btc.getWidth()-menuAmount,btc.getHeight()-menuAmount);
-            btg.strokeLine(btc.getWidth()-menuAmount,menuAmount,menuAmount,btc.getHeight()-menuAmount);
-            btc.setOnMouseClicked(event -> new Thread(()-> {
-                if(!isCing&&!isStageMoving) {
-                    isCing=true;
-                    try {
-                        for (int i = 5; i >= -5; i--) {
-                            btg.setFill(Color.rgb(185, 185, 185));
-                            btg.fillRect(0, 0, btc.getWidth(), btc.getHeight());
-                            btg.setFill(Color.rgb(255, 7, 7));
-                            btg.fillRect(i, i, btc.getWidth() - 2 * i, btc.getHeight() - 2 * i);
-                            btg.strokeLine(menuAmount, menuAmount, btc.getWidth() - menuAmount, btc.getHeight() - menuAmount);
-                            btg.strokeLine(btc.getWidth() - menuAmount, menuAmount, menuAmount, btc.getHeight() - menuAmount);
-                            Thread.sleep(20);
-                            btg.clearRect(0, 0, btc.getWidth(), btc.getHeight());
-                        }
-                        btg.setFill(Color.rgb(185, 185, 185));
-                        btg.fillRect(0, 0, btc.getWidth(), btc.getHeight());
-                        btg.setFill(Color.rgb(255, 7, 7));
-                        btg.fillRect(0, 0, btc.getWidth(), btc.getHeight());
-                        btg.strokeLine(menuAmount, menuAmount, btc.getWidth() - menuAmount, btc.getHeight() - menuAmount);
-                        btg.strokeLine(btc.getWidth() - menuAmount, menuAmount, menuAmount, btc.getHeight() - menuAmount);
-                        isRunning = false;
-                        isCing=false;
-                        Platform.runLater(primaryStage::close);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }).start());
-            btc.setOnMouseEntered(event -> {
-                if(!isStageMoving) {
-                    btg.clearRect(0, 0, btc.getWidth(), btc.getHeight());
-                    btg.setFill(Color.rgb(255, 7, 7));
-                    btg.fillRect(0, 0, btc.getWidth(), btc.getHeight());
-                    btg.strokeLine(menuAmount, menuAmount, btc.getWidth() - menuAmount, btc.getHeight() - menuAmount);
-                    btg.strokeLine(btc.getWidth() - menuAmount, menuAmount, menuAmount, btc.getHeight() - menuAmount);
-                }
-            });
-            btc.setOnMouseExited(event -> {
-                if(!isbtcing&&!isCing&&!isStageMoving) {
-                    isbtcing = true;
-                    new Thread(() -> {
-                        try {
-                            btg.clearRect(0, 0, btc.getWidth(), btc.getHeight());
-                            int a = 255;
-                            for (int i = 0; i <= 185; i += 5) {
-                                btg.setFill(Color.rgb(a, i, i));
-                                btg.fillRect(0, 0, btc.getWidth(), btc.getHeight());
-                                btg.strokeLine(menuAmount, menuAmount, btc.getWidth() - menuAmount, btc.getHeight() - menuAmount);
-                                btg.strokeLine(btc.getWidth() - menuAmount, menuAmount, menuAmount, btc.getHeight() - menuAmount);
-                                Thread.sleep(4);
-                                a -= a > 185 ? 1 : 0;
-                            }
-                            btg.setFill(Color.rgb(185, 185, 185));
-                            btg.fillRect(0, 0, btc.getWidth(), btc.getHeight());
-                            btg.strokeLine(menuAmount, menuAmount, btc.getWidth() - menuAmount, btc.getHeight() - menuAmount);
-                            btg.strokeLine(btc.getWidth() - menuAmount, menuAmount, menuAmount, btc.getHeight() - menuAmount);
-                            isbtcing = false;
-                        }catch (Exception e){
-                            e.printStackTrace();
-                        }
-                    }).start();
-                }
-            });
         }
         layout.requestFocus();
         primaryStage.setScene(sc);
-        refreshMenu();
-    }
-    public void refreshMenu(){
-        g.setFill(menuColor);
-        g.fillRect(0,0,primaryStage.getWidth(), menuBarHeight);
-        g.setFill(Color.BLACK);
-        g.fillText(title, 25,17,100);
-    }
-    private void mouseDraggedEvent(MouseEvent event) {
-        if(isStageMoving) {
-            new Thread(() -> {
-                try {
-                    dragLock.lock();
-                    primaryStage.setX(primaryStage.getX() + event.getScreenX() - mouseDraggedX);
-                    primaryStage.setY(primaryStage.getY() + event.getScreenY() - mouseDraggedY);
-                    mouseDraggedX = event.getScreenX();
-                    mouseDraggedY = event.getScreenY();
-                } finally {
-                    dragLock.unlock();
-                }
-            }).start();
-        }
-    }
-    private void mousePressedEvent(MouseEvent event){
-        if(event.getY()<=menuBarHeight&&!isStageMoving) {
-            isStageMoving = true;
-            mouseDraggedX = event.getScreenX();
-            mouseDraggedY = event.getScreenY();
-        }
     }
     public void show() {
         layoutNode.add(mainCanvas);
-        layoutNode.add(menuCanvas);
-        layoutNode.add(btc);
         primaryStage.show();
     }
     public void setTitle(String title){
-        this.title = title!=null?title:this.title;
-        refreshMenu();
+        primaryStage.setTitle(title);
     }
-    public double getPrimaryStageX(){
+    public double getX(){
         return primaryStage.getX();
     }
-    public void setPrimaryStageX(double x){
+    public void setX(double x){
         primaryStage.setX(x);
     }
-    public double getPrimaryStageY(){
+    public double getY(){
         return primaryStage.getX();
     }
-    public void setPrimaryStageY(double y){
+    public void setY(double y){
         primaryStage.setY(y);
     }
-    public void setPrimaryStageBounds(double x, double y){
+    public void setCoordinate(double x, double y){
         primaryStage.setX(x);
         primaryStage.setY(y);
     }
-    public double getPrimaryStageWidth(){
+    public double getWidth(){
         return primaryStage.getWidth();
     }
-    public void setPrimaryStageWidth(double w){
+    public void setWidth(double w){
         primaryStage.setWidth(w);
     }
-    public double getPrimaryStageHeight(){
-        return primaryStage.getHeight();
+    public double getHeight(){
+        return primaryStage.getHeight()-getMenuHeight();
     }
-    public void setPrimaryStageHeight(double h){
-        primaryStage.setWidth(h);
+    public void setHeight(double h){
+        primaryStage.setWidth(h+getMenuHeight());
     }
-    public void setPrimaryStageSize(double w,double h){
+    public void setSize(double w,double h){
         primaryStage.setWidth(w);
-        primaryStage.setHeight(h);
+        primaryStage.setHeight(h+getMenuHeight());
     }
     public Stage getPrimaryStage(){
         return primaryStage;
@@ -254,7 +129,10 @@ public class Window {
         this.isListenForData = isListenForData;
     }
     public void cleanArtboard(){
-        mg.clearRect(0,0,primaryStage.getWidth(),primaryStage.getHeight()-menuBarHeight);
+        mg.clearRect(0,0,getWidth(),getHeight());
+    }
+    public static double getMenuHeight(){
+        return 30;
     }
     void PersonaOnKeyPressed(KeyEvent event){
         new Thread(() -> {

@@ -8,7 +8,7 @@ import six.lucky.graph.Graph;
 import java.util.ArrayList;
 public class Persona extends Director{
     private double x = 0;
-    private double y = Window.menuBarHeight;
+    private double y = 0;
     private boolean visible = false;
     private int frequency = 0;
     private double angle = 0;
@@ -51,18 +51,16 @@ public class Persona extends Director{
         return personaImageQuantity;
     }
     public void refreshPersona() {
-        if(!Window.isStageMoving) {
-            Platform.runLater(() -> {
-                personaImageView.setX(x);
-                personaImageView.setY(y);
-                personaImageView.setRotate(angle);
-                personaImageView.setVisible(visible);
-                if (personaImageIndex != last) {
-                    personaImageView.setImage(personaImage.get(personaImageIndex >= 0 && personaImageIndex <= personaImage.size() - 1 ? personaImageIndex : 0));
-                }
-                last = personaImageIndex;
-            });
-        }
+        Platform.runLater(() -> {
+            personaImageView.setX(x);
+            personaImageView.setY(y);
+            personaImageView.setRotate(angle);
+            personaImageView.setVisible(visible);
+            if (personaImageIndex != last) {
+                personaImageView.setImage(personaImage.get(personaImageIndex >= 0 && personaImageIndex <= personaImage.size() - 1 ? personaImageIndex : 0));
+            }
+            last = personaImageIndex;
+        });
     }
     void startPersonaThread(){
         new Thread(()->{
@@ -94,10 +92,6 @@ public class Persona extends Director{
         }).start();
     }
     public void index(int index){
-        if(index<0||index>personaIndexEvents.size()){
-            System.out.println("Index:transborder");
-            return;
-        }
         personaIndexEvents.forEach(e->{
             if(personaIndexEvents.indexOf(e)==index){
                 e.index=true;
@@ -105,10 +99,6 @@ public class Persona extends Director{
         });
     }
     public void overindex(int index){
-        if(index<0||index>personaIndexEvents.size()){
-            System.out.println("Index:transborder");
-            return;
-        }
         personaIndexEvents.forEach(e->{
             if(personaIndexEvents.indexOf(e)==index){
                 e.index=false;

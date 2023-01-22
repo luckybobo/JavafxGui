@@ -3,7 +3,8 @@ package six.lucky.graph;
 import six.lucky.swing.Window;
 
 public class Rect3D{
-    private double width = 100;
+    private double width = 80;
+    Vector3D modelAbsoluteScale = new Vector3D(1,1,1);
     Vector3D modelAbsoluteAngle = new Vector3D(0,0,0);
     Vector3D modelAbsoluteOrigin = new Vector3D(0,0,-400);
     Vector3D[] vertexArr = {
@@ -17,6 +18,18 @@ public class Rect3D{
             new Vector3D(-width, -width, -width),
             new Vector3D(-width, width+0, -width)
     };
+
+//Vector3D[] vertexArr = {
+//        new Vector3D(width, width+0, width),
+//        new Vector3D(width, -width, width),
+//        new Vector3D(-width, -width, width),
+//        new Vector3D(-width, width+0, width),
+//
+//        new Vector3D(),
+//        new Vector3D(),
+//        new Vector3D(),
+//        new Vector3D()
+//};
     int[][] elementArr = {
             {0, 1, 2, 3},
             {4, 5, 6, 7},
@@ -35,9 +48,12 @@ public class Rect3D{
         return Graph.toScreen(projectedv,window);
     }
     public void translate(double x,double y,double z){
-        Matrix4x4 m = new Matrix4x4();
-        m=Graph.translate(x,y,z);
+        Matrix4x4 m = Graph.translate(x,y,z);
         modelAbsoluteOrigin=Matrix4x4.multiply(m,modelAbsoluteOrigin);
+    }
+    public void scale(double x,double y,double z) {
+        Matrix4x4 m = Graph.scale(x, y, z);
+        modelAbsoluteScale = Matrix4x4.multiply(m, modelAbsoluteScale);
     }
     public void rotate(double angle,boolean x,boolean y,boolean z){
         if(x) {
@@ -64,5 +80,12 @@ public class Rect3D{
                 new Vector3D(-width, -width, -width),
                 new Vector3D(-width, width + 0, -width)
         };
+    }
+    public void print(){
+        System.out.println("--------------------");
+        for (Vector3D v : vertexArr) {
+            v.print();
+        }
+        System.out.println("--------------------");
     }
 }

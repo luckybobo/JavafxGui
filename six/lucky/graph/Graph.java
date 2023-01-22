@@ -36,8 +36,8 @@ public class Graph {
     }
     public static Vector3D toScreen(Vector3D projectedv, Window window){
         Vector3D v = new Vector3D();
-        v.setX(window.getPrimaryStageWidth()/2+projectedv.getX());
-        v.setY((window.getPrimaryStageHeight()-Window.menuBarHeight)/2-projectedv.getY());
+        v.setX(window.getWidth()/2+projectedv.getX());
+        v.setY(window.getHeight()/2-projectedv.getY());
         return v;
     }
     public static Matrix4x4 translate(double x, double y, double z){
@@ -45,6 +45,13 @@ public class Graph {
         m.set(0,3,x);
         m.set(1,3,y);
         m.set(2,3,z);
+        return m;
+    }
+    public static Matrix4x4 scale(double x,double y,double z){
+        Matrix4x4 m=new Matrix4x4();
+        m.mat[0][0]=x;
+        m.mat[1][1]=y;
+        m.mat[2][2]=z;
         return m;
     }
     public static Matrix4x4 rotate(double angle, boolean x, boolean y, boolean z){
